@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль пользователя</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0D0D0D; /* Основной фон, очень темный */
+            color: #ffffff;
+        }
+        .element-bg {
+            background-color: #1E1E1E; /* Фон для большинства элементов */
+        }
+        .dark-element-bg {
+             background-color: #141414;
+        }
+        .gradient-accent {
+             background-image: linear-gradient(to right, #E4A75A, #C38345);
+        }
+        .text-secondary {
+            color: #8A8A8E; /* Цвет для второстепенного текста */
+        }
+        .text-delete {
+            color: #8A8A8E; 
+        }
+        .text-logout {
+            color: #8A8A8E;
+        }
+        .info-button-border {
+            border: 1px solid #4A4A4A;
+        }
+        
+        /* Стили для анимации модального окна */
+        #avatar-modal {
+            transition: background-color 0.3s ease-in-out;
+        }
+        #modal-panel {
+            transition: transform 0.3s ease-in-out;
+            height: 50vh; /* Устанавливаем высоту в 50% от высоты экрана */
+            overflow-y: auto; /* Добавляем прокрутку, если контент не помещается */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="app-container" class="w-full min-h-screen flex flex-col bg-[#0D0D0D]">
+
+        <!-- СТРАНИЦА ПРОФИЛЯ (новый дизайн) -->
+        <div id="profile-page" class="flex flex-col flex-grow">
+            <main class="flex-grow p-4">
+                <!-- Header -->
+                <header class="flex justify-between items-center mb-4">
+                    <button class="w-10 h-10 flex items-center justify-center dark-element-bg rounded-full">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+                    <button id="edit-profile-button" class="w-10 h-10 flex items-center justify-center dark-element-bg rounded-full">
+                        <i data-lucide="pencil" class="w-5 h-5 cursor-pointer"></i>
+                    </button>
+                </header>
+
+                <!-- Profile Info -->
+                <div class="relative flex flex-col items-center text-center mb-4">
+                    <div class="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col items-center space-y-1">
+                         <div class="w-12 h-12 rounded-full dark-element-bg flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2z"></path></svg>
+                         </div>
+                         <span class="text-xs text-secondary">Канал</span>
+                    </div>
+                    <div class="relative mb-4">
+                        <div id="avatar-button" class="w-28 h-28 bg-cover bg-center bg-[#48484A] rounded-full cursor-pointer flex items-center justify-center border-2 border-[#EBEBF5]/30" style="background-image: url('https://placehold.co/112x112/222/FFF?text=')">
+                        </div>
+                        <button class="absolute bottom-0 right-0 element-bg w-7 h-7 rounded-full flex items-center justify-center border-2 border-[#0D0D0D]">
+                            <i data-lucide="plus" class="w-4 h-4 text-white"></i>
+                        </button>
+                    </div>
+                     <div class="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-center space-y-1">
+                         <div class="w-12 h-12 rounded-full dark-element-bg flex items-center justify-center">
+                            <i data-lucide="globe" class="w-6 h-6"></i>
+                         </div>
+                         <span class="text-xs text-secondary">Сайт</span>
+                    </div>
+                    <p class="text-secondary text-sm">ФИО</p>
+                    <h1 class="text-2xl font-bold">kadetov</h1>
+                    <i data-lucide="eye" class="w-6 h-6 text-secondary absolute top-0 right-0"></i>
+                </div>
+                
+                <div class="element-bg text-center py-2 px-4 rounded-lg mb-4">
+                    <p class="text-sm text-secondary">Бизнес-партнер: <span class="text-white">никтелеграм</span></p>
+                </div>
+
+                <!-- Quick Info Buttons -->
+                <div class="grid grid-cols-3 gap-3 text-center text-sm mb-6">
+                    <div class="p-3 rounded-xl gradient-accent text-white font-semibold">Пол</div>
+                    <div class="info-button-border p-3 rounded-xl">Возраст</div>
+                    <div class="info-button-border p-3 rounded-xl flex items-center justify-center space-x-2">
+                        <img src="https://placehold.co/20x15/313131/FFF?text=RU" alt="[Изображение флага России]" class="rounded-sm">
+                        <span>Россия</span>
+                    </div>
+                </div>
+
+                <!-- Menu List -->
+                <div class="space-y-2 mb-6">
+                    <a href="#" class="flex items-center element-bg p-3 rounded-xl">
+                        <img src="https://placehold.co/40x40/2E7D32/FFFFFF?text=$$" alt="[Иконка вывода]" class="w-10 h-10 mr-3 rounded-lg">
+                        <span>Вывод</span>
+                        <i data-lucide="chevron-right" class="w-5 h-5 ml-auto text-secondary"></i>
+                    </a>
+                    <a href="#" class="flex items-center element-bg p-3 rounded-xl">
+                         <img src="https://placehold.co/40x40/FFC107/000000?text=FLAG" alt="[Иконка старта]" class="w-10 h-10 mr-3 rounded-lg">
+                        <span>Старт</span>
+                        <i data-lucide="chevron-right" class="w-5 h-5 ml-auto text-secondary"></i>
+                    </a>
+                    <a href="#" class="flex items-center element-bg p-3 rounded-xl">
+                        <img src="https://placehold.co/40x40/1976D2/FFFFFF?text=?" alt="[Иконка FAQ]" class="w-10 h-10 mr-3 rounded-lg">
+                        <span>FAQ</span>
+                        <i data-lucide="chevron-right" class="w-5 h-5 ml-auto text-secondary"></i>
+                    </a>
+                    <a href="#" class="flex items-center element-bg p-3 rounded-xl">
+                        <img src="https://placehold.co/40x40/D32F2F/FFFFFF?text=H" alt="[Иконка поддержки]" class="w-10 h-10 mr-3 rounded-lg">
+                        <span>Поддержка</span>
+                        <i data-lucide="chevron-right" class="w-5 h-5 ml-auto text-secondary"></i>
+                    </a>
+                </div>
+            </main>
+             <!-- Account Actions -->
+            <div class="px-4 pb-6 mt-auto">
+                <div class="flex justify-between items-center">
+                     <a href="#" class="text-delete font-medium">Удалить аккаунт</a>
+                     <a href="#" class="text-logout font-medium">Выйти</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- СТРАНИЦА РЕДАКТИРОВАНИЯ ПРОФИЛЯ -->
+        <div id="edit-profile-page" class="hidden flex-grow">
+             <main class="flex-grow p-4 space-y-6">
+                <!-- Header -->
+                <header class="flex items-center space-x-4 mb-4">
+                    <i id="back-to-profile-button" data-lucide="chevron-left" class="w-6 h-6 cursor-pointer"></i>
+                    <h1 class="font-bold text-lg flex-grow">РЕДАКТИРОВАТЬ ПРОФИЛЬ</h1>
+                </header>
+
+                <!-- Личные данные -->
+                <section class="space-y-3">
+                    <h2 class="text-secondary text-sm font-medium pt-2">Личные данные</h2>
+                    <div class="element-bg p-3 rounded-xl text-sm">gera_is</div>
+                    <div class="element-bg p-3 rounded-xl text-sm">Байкенова Айгерим Кайратовна</div>
+                    <div class="element-bg p-3 rounded-xl text-sm text-secondary">Ваша почта</div>
+                    <div class="grid grid-cols-3 gap-3 text-center text-sm">
+                        <div class="element-bg p-3 rounded-xl text-secondary">Пол</div>
+                        <div class="element-bg p-3 rounded-xl text-secondary">Возраст</div>
+                        <div class="element-bg p-3 rounded-xl flex items-center justify-center space-x-2">
+                            <img src="https://placehold.co/20x15/313131/FFF?text=RU" alt="[Изображение флага России]" class="rounded-sm">
+                            <span>Россия</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Данные входа -->
+                <section class="space-y-3">
+                    <h2 class="text-secondary text-sm font-medium pt-4">Данные входа</h2>
+                    <div class="element-bg p-3 rounded-xl text-sm text-secondary">имя</div>
+                    <div class="element-bg p-3 rounded-xl flex justify-between items-center text-sm">
+                        <span class="text-secondary">Пароль</span>
+                        <div class="flex items-center space-x-3 text-secondary">
+                            <i data-lucide="eye-off" class="w-5 h-5"></i>
+                            <i data-lucide="settings" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="element-bg p-3 rounded-xl flex justify-between items-center text-sm">
+                        <span class="text-secondary">Pin (требуется для проверки операций)</span>
+                        <i data-lucide="settings" class="w-5 h-5 text-secondary"></i>
+                    </div>
+                </section>
+
+                <!-- Финансовые данные -->
+                <section class="space-y-3">
+                     <h2 class="text-secondary text-sm font-medium pt-4">Финансовые данные</h2>
+                     <div class="element-bg p-3 rounded-xl flex justify-between items-center text-sm">
+                        <span class="text-secondary">Привязать банковскую карту</span>
+                        <div class="flex items-center space-x-2">
+                            <img src="https://placehold.co/30x20/ffffff/000000?text=МИР" alt="[Изображение карты МИР]" class="h-4">
+                            <img src="https://placehold.co/30x20/1a1a72/ffffff?text=VISA" alt="[Изображение карты VISA]" class="h-4">
+                            <img src="https://placehold.co/30x20/eb001b/f79e1b?text=MC" alt="[Изображение карты Mastercard]" class="h-4">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Кнопки действий -->
+                <div class="grid grid-cols-2 gap-4 pt-8">
+                    <button id="cancel-edit-button" class="element-bg text-white py-3 rounded-xl font-semibold">ОТМЕНИТЬ</button>
+                    <button class="gradient-accent text-black py-3 rounded-xl font-semibold">СОХРАНИТЬ</button>
+                </div>
+             </main>
+        </div>
+    </div>
+
+    <!-- Модальное окно смены аватара -->
+    <div id="avatar-modal" class="fixed inset-0 bg-black bg-opacity-0 pointer-events-none flex justify-center items-end z-50">
+        <div id="modal-panel" class="bg-[#1C1C1E] w-full rounded-t-2xl p-4 text-center transform translate-y-full flex flex-col">
+            <div class="flex-shrink-0">
+                <h2 class="text-lg font-bold mb-1">СМЕНА АВАТАРА</h2>
+                <p class="text-secondary text-sm mb-4">Выберите аватар, отражающий ваш внутренний мир</p>
+            </div>
+            
+            <div class="flex-grow grid grid-cols-2 gap-3 mb-4 content-center">
+                <div class="aspect-square rounded-full border-2 border-[#D6A96A] flex items-center justify-center bg-cover bg-center" style="background-image: url('https://placehold.co/150x150/222/FFF?text=User')">
+                </div>
+                <div class="aspect-square rounded-full bg-gray-800 opacity-50 flex items-center justify-center bg-cover bg-center" style="background-image: url('https://placehold.co/150x150/111/555?text=User')">
+                </div>
+                 <div class="aspect-square rounded-full border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer p-2">
+                    <i data-lucide="plus" class="w-8 h-8 text-secondary"></i>
+                    <span class="text-[10px] text-secondary mt-1 text-center">*До 4 мб</span>
+                </div>
+            </div>
+
+            <div class="flex-shrink-0 grid grid-cols-2 gap-3">
+                <button id="cancel-modal-button" class="element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
+                <button class="gradient-accent text-black py-2.5 rounded-xl font-semibold">СОХРАНИТЬ</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        lucide.createIcons();
+
+        const profilePage = document.getElementById('profile-page');
+        const editProfilePage = document.getElementById('edit-profile-page');
+        const editProfileButton = document.getElementById('edit-profile-button');
+        const backToProfileButton = document.getElementById('back-to-profile-button');
+        const cancelEditButton = document.getElementById('cancel-edit-button');
+        const avatarButton = document.getElementById('avatar-button');
+        const avatarModal = document.getElementById('avatar-modal');
+        const modalPanel = document.getElementById('modal-panel');
+        const cancelModalButton = document.getElementById('cancel-modal-button');
+
+        function showProfilePage() {
+            profilePage.classList.remove('hidden');
+            profilePage.classList.add('flex');
+            editProfilePage.classList.add('hidden');
+            editProfilePage.classList.remove('flex');
+        }
+
+        function showEditProfilePage() {
+            profilePage.classList.add('hidden');
+            profilePage.classList.remove('flex');
+            editProfilePage.classList.remove('hidden');
+            editProfilePage.classList.add('flex', 'flex-col');
+        }
+
+        function openModal() {
+            avatarModal.classList.remove('pointer-events-none');
+            avatarModal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            modalPanel.style.transform = 'translateY(0)';
+        }
+
+        function closeModal() {
+            avatarModal.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+            modalPanel.style.transform = 'translateY(100%)';
+            setTimeout(() => {
+                avatarModal.classList.add('pointer-events-none');
+            }, 300);
+        }
+
+        editProfileButton.addEventListener('click', showEditProfilePage);
+        backToProfileButton.addEventListener('click', showProfilePage);
+        cancelEditButton.addEventListener('click', showProfilePage);
+        avatarButton.addEventListener('click', openModal);
+        cancelModalButton.addEventListener('click', closeModal);
+        avatarModal.addEventListener('click', (event) => {
+            if (event.target === avatarModal) {
+                closeModal();
+            }
+        });
+
+    </script>
+
+</body>
+</html>
