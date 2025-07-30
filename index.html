@@ -246,6 +246,10 @@
                 <div>Вс</div><div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div>
             </div>
             <div id="calendar-days" class="calendar-grid"></div>
+            <div class="flex-shrink-0 grid grid-cols-2 gap-3 pt-4 border-t border-gray-700">
+                <button class="cancel-modal-button element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
+                <button id="save-age-button" class="gradient-accent text-black p-3 rounded-xl font-semibold">Сохранить</button>
+            </div>
         </div>
     </div>
     <!-- Country Modal -->
@@ -262,10 +266,10 @@
             <h3 id="pin-title" class="text-lg font-bold text-center">Создать PIN-код</h3>
             <p id="pin-error" class="text-red-500 text-center text-sm hidden">PIN-коды не совпадают</p>
             <input type="password" id="pin-input" class="input-style text-center tracking-[1em]" placeholder="••••" maxlength="4">
-            <input type="password" id="pin-confirm-input" class="input-style text-center tracking-[1em]" placeholder="••••" maxlength="4">
+            <input type="password" id="pin-confirm-input" class="input-style text-center tracking-[1em] hidden" placeholder="••••" maxlength="4">
             <div class="flex-shrink-0 grid grid-cols-2 gap-3 pt-4">
                 <button class="cancel-modal-button element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
-                <button id="save-pin-button" class="gradient-accent text-black p-3 rounded-xl font-semibold">Сохранить</button>
+                <button id="next-pin-button" class="gradient-accent text-black p-3 rounded-xl font-semibold">Далее</button>
             </div>
         </div>
     </div>
@@ -318,14 +322,14 @@
         // --- State & Local Storage ---
         const USER_DATA_KEY = 'userProfileData';
         let selectedAvatarInModal = null;
-        let calendarDate = new Date();
+        let selectedDateInCalendar = null;
 
         function loadUserData() {
             const data = localStorage.getItem(USER_DATA_KEY);
             const defaultData = {
                 fullname: 'ФИО', nickname: 'kadetov', email: 'Ваша почта',
                 partner: 'никтелеграм', gender: 'Пол', age: 'Возраст',
-                country: 'Россия', country_flag: '🇷🇺',
+                country: 'Россия', country_flag: '�🇺',
                 avatar: 'https://placehold.co/112x112/222/FFF?text=',
                 avatarHistory: ['https://placehold.co/112x112/222/FFF?text='],
                 isProfileVisible: true, pin: '', 
@@ -500,7 +504,6 @@
                 calendarDaysEl.innerHTML = '';
                 const month = parseInt(monthSelect.value);
                 const year = parseInt(yearSelect.value);
-                calendarDate = new Date(year, month);
 
                 const firstDay = new Date(year, month, 1).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -509,17 +512,17 @@
                     const dayEl = document.createElement('div');
                     dayEl.className = 'calendar-day';
                     dayEl.textContent = i;
+
+                    if (selectedDateInCalendar &&
+                        i === selectedDateInCalendar.getDate() &&
+                        month === selectedDateInCalendar.getMonth() &&
+                        year === selectedDateInCalendar.getFullYear()) {
+                        dayEl.classList.add('selected');
+                    }
+
                     dayEl.addEventListener('click', () => {
-                        const selectedDate = new Date(year, month, i);
-                        const today = new Date();
-                        let age = today.getFullYear() - selectedDate.getFullYear();
-                        const m = today.getMonth() - selectedDate.getMonth();
-                        if (m < 0 || (m === 0 && today.getDate() < selectedDate.getDate())) age--;
-                        const userData = loadUserData();
-                        userData.age = age;
-                        saveUserData(userData);
-                        updateUI();
-                        closeModal('age-modal');
+                        selectedDateInCalendar = new Date(year, month, i);
+                        renderCalendar();
                     });
                     calendarDaysEl.appendChild(dayEl);
                 }
@@ -528,6 +531,7 @@
             monthSelect.addEventListener('change', renderCalendar);
             yearSelect.addEventListener('change', renderCalendar);
             document.getElementById('open-age-modal').addEventListener('click', () => { 
+                selectedDateInCalendar = null;
                 const today = new Date();
                 monthSelect.value = today.getMonth();
                 yearSelect.value = today.getFullYear();
@@ -536,6 +540,19 @@
             });
             document.getElementById('prev-month').addEventListener('click', () => { monthSelect.value = (parseInt(monthSelect.value) + 11) % 12; renderCalendar(); });
             document.getElementById('next-month').addEventListener('click', () => { monthSelect.value = (parseInt(monthSelect.value) + 1) % 12; renderCalendar(); });
+            
+            document.getElementById('save-age-button').addEventListener('click', () => {
+                if (!selectedDateInCalendar) return;
+                const today = new Date();
+                let age = today.getFullYear() - selectedDateInCalendar.getFullYear();
+                const m = today.getMonth() - selectedDateInCalendar.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < selectedDateInCalendar.getDate())) age--;
+                const userData = loadUserData();
+                userData.age = age;
+                saveUserData(userData);
+                updateUI();
+                closeModal('age-modal');
+            });
         }
 
         // Country
@@ -573,30 +590,60 @@
         // PIN & Card
         function initSecurityLogic() {
             // PIN
+            const pinModal = document.getElementById('pin-modal');
+            const pinTitle = document.getElementById('pin-title');
             const pinInput = document.getElementById('pin-input');
             const pinConfirmInput = document.getElementById('pin-confirm-input');
             const pinError = document.getElementById('pin-error');
-            document.getElementById('open-pin-modal').addEventListener('click', () => openModal('pin-modal'));
-            document.getElementById('save-pin-button').addEventListener('click', () => {
+            const nextPinButton = document.getElementById('next-pin-button');
+            let pinStep = 1;
+            let firstPin = '';
+
+            function resetPinModal() {
+                pinStep = 1;
+                firstPin = '';
+                pinTitle.textContent = 'Создать PIN-код';
+                pinInput.value = '';
+                pinConfirmInput.value = '';
+                pinInput.classList.remove('hidden');
+                pinConfirmInput.classList.add('hidden');
+                pinError.classList.add('hidden');
+                nextPinButton.textContent = 'Далее';
+            }
+
+            document.getElementById('open-pin-modal').addEventListener('click', () => {
+                resetPinModal();
+                openModal('pin-modal');
+            });
+
+            nextPinButton.addEventListener('click', () => {
                 pinError.classList.add('hidden');
                 pinInput.classList.remove('error');
                 pinConfirmInput.classList.remove('error');
 
-                if (pinInput.value.length !== 4) {
-                    pinInput.classList.add('error');
-                    return;
+                if (pinStep === 1) {
+                    if (pinInput.value.length !== 4) {
+                        pinInput.classList.add('error');
+                        return;
+                    }
+                    firstPin = pinInput.value;
+                    pinStep = 2;
+                    pinTitle.textContent = 'Подтвердите PIN-код';
+                    pinInput.classList.add('hidden');
+                    pinConfirmInput.classList.remove('hidden');
+                    pinConfirmInput.focus();
+                    nextPinButton.textContent = 'Сохранить';
+                } else { // pinStep === 2
+                    if (firstPin !== pinConfirmInput.value) {
+                        pinError.classList.remove('hidden');
+                        pinConfirmInput.classList.add('error');
+                        return;
+                    }
+                    const data = loadUserData();
+                    data.pin = firstPin;
+                    saveUserData(data);
+                    closeModal('pin-modal');
                 }
-                if (pinInput.value !== pinConfirmInput.value) {
-                    pinError.classList.remove('hidden');
-                    pinConfirmInput.classList.add('error');
-                    return;
-                }
-                const data = loadUserData();
-                data.pin = pinInput.value;
-                saveUserData(data);
-                pinInput.value = '';
-                pinConfirmInput.value = '';
-                closeModal('pin-modal');
             });
 
             // Card
@@ -670,3 +717,4 @@
     </script>
 </body>
 </html>
+�
