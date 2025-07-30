@@ -91,6 +91,12 @@
             padding: 0.25rem 0.5rem;
             border-radius: 0.5rem;
         }
+
+        /* Gender Tab Styles */
+        .gender-tab.active {
+            background-color: #4A4A4A;
+            color: #FFFFFF;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -226,10 +232,13 @@
     <div id="gender-modal" class="modal-backdrop hidden">
         <div class="modal-panel p-4">
             <h3 class="text-lg font-bold text-center mb-4">Выберите пол</h3>
-            <div class="space-y-3">
-                <button data-value="Мужской" class="gender-option w-full element-bg p-3 rounded-xl">Мужской</button>
-                <button data-value="Женский" class="gender-option w-full element-bg p-3 rounded-xl">Женский</button>
-                <button data-value="Другой" class="gender-option w-full element-bg p-3 rounded-xl">Другой</button>
+            <div id="gender-tab-bar" class="element-bg rounded-xl p-1 flex space-x-1 mb-6">
+                <button data-value="Мужской" class="gender-tab w-full p-2 rounded-lg text-secondary">МУЖ</button>
+                <button data-value="Женский" class="gender-tab w-full p-2 rounded-lg text-secondary">ЖЕН</button>
+            </div>
+            <div class="flex-shrink-0 grid grid-cols-2 gap-3 pt-4 border-t border-gray-700">
+                <button class="cancel-modal-button element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
+                <button id="save-gender-button" class="solid-accent-button text-black p-3 rounded-xl font-semibold">Сохранить</button>
             </div>
         </div>
     </div>
@@ -325,6 +334,7 @@
         const USER_DATA_KEY = 'userProfileData';
         let selectedAvatarInModal = null;
         let selectedDateInCalendar = null;
+        let selectedGenderInModal = null;
 
         function loadUserData() {
             const data = localStorage.getItem(USER_DATA_KEY);
@@ -475,16 +485,43 @@
         }
         
         // Gender
-        document.getElementById('open-gender-modal').addEventListener('click', () => openModal('gender-modal'));
-        document.querySelectorAll('.gender-option').forEach(btn => {
-            btn.addEventListener('click', () => {
+        function initGenderLogic() {
+            const genderTabs = document.querySelectorAll('.gender-tab');
+            
+            function updateGenderTabs() {
+                genderTabs.forEach(tab => {
+                    if (tab.dataset.value === selectedGenderInModal) {
+                        tab.classList.add('active');
+                    } else {
+                        tab.classList.remove('active');
+                    }
+                });
+            }
+
+            document.getElementById('open-gender-modal').addEventListener('click', () => {
                 const userData = loadUserData();
-                userData.gender = btn.dataset.value;
-                saveUserData(userData);
-                updateUI();
+                selectedGenderInModal = userData.gender;
+                updateGenderTabs();
+                openModal('gender-modal');
+            });
+
+            genderTabs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedGenderInModal = btn.dataset.value;
+                    updateGenderTabs();
+                });
+            });
+
+            document.getElementById('save-gender-button').addEventListener('click', () => {
+                if (selectedGenderInModal) {
+                    const userData = loadUserData();
+                    userData.gender = selectedGenderInModal;
+                    saveUserData(userData);
+                    updateUI();
+                }
                 closeModal('gender-modal');
             });
-        });
+        }
 
         // Calendar
         function initCalendarLogic() {
@@ -563,7 +600,7 @@
             const countrySearchEl = document.getElementById('country-search');
             let countries = [];
             async function fetchCountries() {
-                 countries = [{"name":"Россия","flag":"🇷🇺"},{"name":"США","flag":"🇺🇸"},{"name":"Казахстан","flag":"🇰🇿"},{"name":"Беларусь","flag":"🇧🇾"},{"name":"Украина","flag":"🇺🇦"},{"name":"Германия","flag":"🇩🇪"}]; // Add more countries
+                 countries = [{"name":"Австралия","flag":"�🇺"},{"name":"Австрия","flag":"🇦🇹"},{"name":"Азербайджан","flag":"🇦🇿"},{"name":"Албания","flag":"🇦🇱"},{"name":"Алжир","flag":"🇩🇿"},{"name":"Ангола","flag":"🇦🇴"},{"name":"Андорра","flag":"🇦🇩"},{"name":"Аргентина","flag":"🇦🇷"},{"name":"Армения","flag":"🇦🇲"},{"name":"Афганистан","flag":"🇦🇫"},{"name":"Бангладеш","flag":"🇧🇩"},{"name":"Беларусь","flag":"🇧🇾"},{"name":"Бельгия","flag":"🇧🇪"},{"name":"Болгария","flag":"🇧🇬"},{"name":"Боливия","flag":"🇧🇴"},{"name":"Бразилия","flag":"🇧🇷"},{"name":"Ватикан","flag":"🇻🇦"},{"name":"Великобритания","flag":"🇬🇧"},{"name":"Венгрия","flag":"🇭🇺"},{"name":"Венесуэла","flag":"🇻🇪"},{"name":"Вьетнам","flag":"🇻🇳"},{"name":"Германия","flag":"🇩🇪"},{"name":"Греция","flag":"🇬🇷"},{"name":"Грузия","flag":"🇬🇪"},{"name":"Дания","flag":"🇩🇰"},{"name":"Египет","flag":"🇪🇬"},{"name":"Израиль","flag":"🇮🇱"},{"name":"Индия","flag":"🇮🇳"},{"name":"Индонезия","flag":"🇮🇩"},{"name":"Иордания","flag":"🇯🇴"},{"name":"Иран","flag":"🇮🇷"},{"name":"Ирландия","flag":"🇮🇪"},{"name":"Исландия","flag":"🇮🇸"},{"name":"Испания","flag":"🇪🇸"},{"name":"Италия","flag":"🇮🇹"},{"name":"Казахстан","flag":"🇰🇿"},{"name":"Камбоджа","flag":"🇰🇭"},{"name":"Канада","flag":"🇨🇦"},{"name":"Катар","flag":"🇶🇦"},{"name":"Кения","flag":"🇰🇪"},{"name":"Кипр","flag":"🇨🇾"},{"name":"Киргизия","flag":"🇰🇬"},{"name":"Китай","flag":"🇨🇳"},{"name":"Колумбия","flag":"🇨🇴"},{"name":"Куба","flag":"🇨🇺"},{"name":"Латвия","flag":"🇱🇻"},{"name":"Литва","flag":"🇱🇹"},{"name":"Лихтенштейн","flag":"🇱🇮"},{"name":"Люксембург","flag":"🇱🇺"},{"name":"Малайзия","flag":"🇲🇾"},{"name":"Мальдивы","flag":"🇲🇻"},{"name":"Мальта","flag":"🇲🇹"},{"name":"Мексика","flag":"🇲🇽"},{"name":"Молдова","flag":"🇲🇩"},{"name":"Монако","flag":"🇲🇨"},{"name":"Монголия","flag":"🇲🇳"},{"name":"Нидерланды","flag":"🇳🇱"},{"name":"Новая Зеландия","flag":"🇳🇿"},{"name":"Норвегия","flag":"🇳🇴"},{"name":"ОАЭ","flag":"🇦🇪"},{"name":"Польша","flag":"🇵🇱"},{"name":"Португалия","flag":"🇵🇹"},{"name":"Россия","flag":"🇷🇺"},{"name":"Румыния","flag":"🇷🇴"},{"name":"Саудовская Аравия","flag":"🇸🇦"},{"name":"Сербия","flag":"🇷🇸"},{"name":"Сингапур","flag":"🇸🇬"},{"name":"Словакия","flag":"🇸🇰"},{"name":"Словения","flag":"🇸🇮"},{"name":"США","flag":"🇺🇸"},{"name":"Таджикистан","flag":"🇹🇯"},{"name":"Таиланд","flag":"🇹🇭"},{"name":"Туркменистан","flag":"🇹🇲"},{"name":"Турция","flag":"🇹🇷"},{"name":"Узбекистан","flag":"🇺🇿"},{"name":"Украина","flag":"🇺🇦"},{"name":"Финляндия","flag":"🇫🇮"},{"name":"Франция","flag":"🇫🇷"},{"name":"Хорватия","flag":"🇭🇷"},{"name":"Черногория","flag":"🇲🇪"},{"name":"Чехия","flag":"🇨🇿"},{"name":"Чили","flag":"🇨🇱"},{"name":"Швейцария","flag":"🇨🇭"},{"name":"Швеция","flag":"🇸🇪"},{"name":"Шри-Ланка","flag":"🇱🇰"},{"name":"Эстония","flag":"🇪🇪"},{"name":"Южная Корея","flag":"🇰🇷"},{"name":"Япония","flag":"🇯🇵"}];
                  renderCountries();
             }
             function renderCountries(filter = '') {
@@ -712,6 +749,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateUI();
             initAvatarLogic();
+            initGenderLogic();
             initCalendarLogic();
             initCountryLogic();
             initSecurityLogic();
