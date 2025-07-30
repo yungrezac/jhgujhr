@@ -24,13 +24,15 @@
         }
         .element-bg { background-color: #1E1E1E; }
         .dark-element-bg { background-color: #141414; }
-        .gradient-accent { background-image: linear-gradient(to bottom left, #000000, #C38345); }
+        .gradient-accent { background-image: linear-gradient(to top right, #000000, #C38345); }
+        .solid-accent-button { background-color: #C38345; }
         .text-secondary { color: #8A8A8E; }
         .text-delete { color: #8A8A8E; }
         .text-logout { color: #8A8A8E; }
         .info-button-border { border: 1px solid #4A4A4A; }
+        .gradient-border { border: 1px solid #C38345; }
         
-        .avatar-glow { box-shadow: 0 0 25px 5px rgba(228, 167, 90, 0.3); }
+        .avatar-glow { box-shadow: 0 0 30px 8px rgba(228, 167, 90, 0.5); }
         .modal-glow { box-shadow: 0 -5px 25px 5px rgba(228, 167, 90, 0.2); }
         .avatar-selected { border: 2px solid #D6A96A !important; }
 
@@ -108,7 +110,7 @@
                             <span class="text-xs text-secondary">Канал</span>
                         </div>
                         <div class="relative">
-                            <div id="avatar-button" class="w-28 h-28 bg-cover bg-center bg-[#48484A] rounded-full cursor-pointer flex items-center justify-center border-2 border-[#EBEBF5]/30 avatar-glow"></div>
+                            <div id="avatar-button" class="w-28 h-28 bg-cover bg-center bg-[#48484A] rounded-full cursor-pointer flex items-center justify-center border-2 border-[#C38345] avatar-glow"></div>
                             <button class="absolute bottom-0 right-0 element-bg w-7 h-7 rounded-full flex items-center justify-center border-2 border-[#0D0D0D]"><i data-lucide="plus" class="w-4 h-4 text-white"></i></button>
                         </div>
                         <div class="flex flex-col items-center space-y-1">
@@ -127,8 +129,8 @@
                 </div>
                 <div id="profile-stats" class="grid grid-cols-3 gap-3 text-center text-sm mb-6">
                     <div id="display-gender" class="p-3 rounded-xl gradient-accent text-white font-semibold">Пол</div>
-                    <div id="display-age" class="info-button-border p-3 rounded-xl">Возраст</div>
-                    <div class="info-button-border p-3 rounded-xl flex items-center justify-center space-x-2">
+                    <div id="display-age" class="gradient-border p-3 rounded-xl">Возраст</div>
+                    <div class="gradient-border p-3 rounded-xl flex items-center justify-center space-x-2">
                         <span id="display-country-flag">🇷🇺</span>
                         <span id="display-country">Россия</span>
                     </div>
@@ -201,7 +203,7 @@
                 </section>
                 <div class="grid grid-cols-2 gap-4 pt-4">
                     <button id="cancel-edit-button" class="element-bg text-white py-3 rounded-xl font-semibold">ОТМЕНИТЬ</button>
-                    <button id="save-profile-button" class="gradient-accent text-black py-3 rounded-xl font-semibold">СОХРАНИТЬ</button>
+                    <button id="save-profile-button" class="solid-accent-button text-black py-3 rounded-xl font-semibold">СОХРАНИТЬ</button>
                 </div>
              </main>
         </div>
@@ -216,7 +218,7 @@
             <input type="file" id="avatar-upload-input" class="hidden" accept="image/*">
             <div class="flex-shrink-0 grid grid-cols-2 gap-3 p-4 border-t border-gray-700">
                 <button class="cancel-modal-button element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
-                <button id="save-avatar-button" class="gradient-accent text-black py-2.5 rounded-xl font-semibold">СОХРАНИТЬ</button>
+                <button id="save-avatar-button" class="solid-accent-button text-black py-2.5 rounded-xl font-semibold">СОХРАНИТЬ</button>
             </div>
         </div>
     </div>
@@ -248,7 +250,7 @@
             <div id="calendar-days" class="calendar-grid"></div>
             <div class="flex-shrink-0 grid grid-cols-2 gap-3 pt-4 border-t border-gray-700">
                 <button class="cancel-modal-button element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
-                <button id="save-age-button" class="gradient-accent text-black p-3 rounded-xl font-semibold">Сохранить</button>
+                <button id="save-age-button" class="solid-accent-button text-black p-3 rounded-xl font-semibold">Сохранить</button>
             </div>
         </div>
     </div>
@@ -269,7 +271,7 @@
             <input type="password" id="pin-confirm-input" class="input-style text-center tracking-[1em] hidden" placeholder="••••" maxlength="4">
             <div class="flex-shrink-0 grid grid-cols-2 gap-3 pt-4">
                 <button class="cancel-modal-button element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
-                <button id="next-pin-button" class="gradient-accent text-black p-3 rounded-xl font-semibold">Далее</button>
+                <button id="next-pin-button" class="solid-accent-button text-black p-3 rounded-xl font-semibold">Далее</button>
             </div>
         </div>
     </div>
@@ -284,7 +286,7 @@
             </div>
              <div class="flex-shrink-0 grid grid-cols-2 gap-3 pt-4">
                 <button class="cancel-modal-button element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
-                <button id="save-card-button" class="gradient-accent text-black p-3 rounded-xl font-semibold">Привязать</button>
+                <button id="save-card-button" class="solid-accent-button text-black p-3 rounded-xl font-semibold">Привязать</button>
             </div>
         </div>
     </div>
@@ -329,7 +331,7 @@
             const defaultData = {
                 fullname: 'ФИО', nickname: 'kadetov', email: 'Ваша почта',
                 partner: 'никтелеграм', gender: 'Пол', age: 'Возраст',
-                country: 'Россия', country_flag: '�🇺',
+                country: 'Россия', country_flag: '🇷🇺',
                 avatar: 'https://placehold.co/112x112/222/FFF?text=',
                 avatarHistory: ['https://placehold.co/112x112/222/FFF?text='],
                 isProfileVisible: true, pin: '', 
