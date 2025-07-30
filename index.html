@@ -53,6 +53,11 @@
             height: 50vh; /* Устанавливаем высоту в 50% от высоты экрана */
             overflow-y: auto; /* Добавляем прокрутку, если контент не помещается */
         }
+        input.element-bg {
+            background-color: #1E1E1E;
+            border: none;
+            outline: none;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -93,22 +98,22 @@
                           </div>
                           <span class="text-xs text-secondary">Сайт</span>
                     </div>
-                    <p class="text-secondary text-sm">ФИО</p>
-                    <h1 class="text-2xl font-bold">kadetov</h1>
+                    <p id="display-fullname" class="text-secondary text-sm">ФИО</p>
+                    <h1 id="display-nickname" class="text-2xl font-bold">kadetov</h1>
                     <i data-lucide="eye" class="w-6 h-6 text-secondary absolute top-0 right-0"></i>
                 </div>
                 
                 <div class="element-bg text-center py-2 px-4 rounded-lg mb-4">
-                    <p class="text-sm text-secondary">Бизнес-партнер: <span class="text-white">никтелеграм</span></p>
+                    <p class="text-sm text-secondary">Бизнес-партнер: <span id="display-partner" class="text-white">никтелеграм</span></p>
                 </div>
 
                 <!-- Quick Info Buttons -->
                 <div class="grid grid-cols-3 gap-3 text-center text-sm mb-6">
-                    <div class="p-3 rounded-xl gradient-accent text-white font-semibold">Пол</div>
-                    <div class="info-button-border p-3 rounded-xl">Возраст</div>
+                    <div id="display-gender" class="p-3 rounded-xl gradient-accent text-white font-semibold">Пол</div>
+                    <div id="display-age" class="info-button-border p-3 rounded-xl">Возраст</div>
                     <div class="info-button-border p-3 rounded-xl flex items-center justify-center space-x-2">
                         <img src="https://placehold.co/20x15/313131/FFF?text=RU" alt="[Изображение флага России]" class="rounded-sm">
-                        <span>Россия</span>
+                        <span id="display-country">Россия</span>
                     </div>
                 </div>
 
@@ -157,23 +162,20 @@
                 <!-- Личные данные -->
                 <section class="space-y-3">
                     <h2 class="text-secondary text-sm font-medium pt-2">Личные данные</h2>
-                    <div class="element-bg p-3 rounded-xl text-sm">gera_is</div>
-                    <div class="element-bg p-3 rounded-xl text-sm">Байкенова Айгерим Кайратовна</div>
-                    <div class="element-bg p-3 rounded-xl text-sm text-secondary">Ваша почта</div>
+                    <input type="text" id="edit-nickname" class="w-full element-bg p-3 rounded-xl text-sm" placeholder="Никнейм">
+                    <input type="text" id="edit-fullname" class="w-full element-bg p-3 rounded-xl text-sm" placeholder="ФИО">
+                    <input type="email" id="edit-email" class="w-full element-bg p-3 rounded-xl text-sm" placeholder="Ваша почта">
                     <div class="grid grid-cols-3 gap-3 text-center text-sm">
-                        <div class="element-bg p-3 rounded-xl text-secondary">Пол</div>
-                        <div class="element-bg p-3 rounded-xl text-secondary">Возраст</div>
-                        <div class="element-bg p-3 rounded-xl flex items-center justify-center space-x-2">
-                            <img src="https://placehold.co/20x15/313131/FFF?text=RU" alt="[Изображение флага России]" class="rounded-sm">
-                            <span>Россия</span>
-                        </div>
+                         <input type="text" id="edit-gender" class="w-full element-bg p-3 rounded-xl text-secondary text-center" placeholder="Пол">
+                         <input type="number" id="edit-age" class="w-full element-bg p-3 rounded-xl text-secondary text-center" placeholder="Возраст">
+                         <input type="text" id="edit-country" class="w-full element-bg p-3 rounded-xl text-secondary text-center" placeholder="Страна">
                     </div>
                 </section>
 
                 <!-- Данные входа -->
                 <section class="space-y-3">
                     <h2 class="text-secondary text-sm font-medium pt-4">Данные входа</h2>
-                    <div class="element-bg p-3 rounded-xl text-sm text-secondary">имя</div>
+                    <input type="text" id="edit-partner" class="w-full element-bg p-3 rounded-xl text-sm" placeholder="Бизнес-партнер (никтелеграм)">
                     <div class="element-bg p-3 rounded-xl flex justify-between items-center text-sm">
                         <span class="text-secondary">Пароль</span>
                         <div class="flex items-center space-x-3 text-secondary">
@@ -203,7 +205,7 @@
                 <!-- Кнопки действий -->
                 <div class="grid grid-cols-2 gap-4 pt-8">
                     <button id="cancel-edit-button" class="element-bg text-white py-3 rounded-xl font-semibold">ОТМЕНИТЬ</button>
-                    <button class="gradient-accent text-black py-3 rounded-xl font-semibold">СОХРАНИТЬ</button>
+                    <button id="save-profile-button" class="gradient-accent text-black py-3 rounded-xl font-semibold">СОХРАНИТЬ</button>
                 </div>
              </main>
         </div>
@@ -218,19 +220,20 @@
             </div>
             
             <div class="flex-grow grid grid-cols-2 gap-3 mb-4 content-center">
-                <div class="w-20 h-20 justify-self-center rounded-full border-2 border-[#D6A96A] flex items-center justify-center bg-cover bg-center" style="background-image: url('https://placehold.co/80x80/222/FFF?text=User')">
+                <div id="modal-avatar-preview" class="w-20 h-20 justify-self-center rounded-full border-2 border-[#D6A96A] flex items-center justify-center bg-cover bg-center" style="background-image: url('https://placehold.co/80x80/222/FFF?text=User')">
                 </div>
                 <div class="w-20 h-20 justify-self-center rounded-full bg-gray-800 opacity-50 flex items-center justify-center bg-cover bg-center" style="background-image: url('https://placehold.co/80x80/111/555?text=User')">
                 </div>
-                 <div class="w-20 h-20 justify-self-center rounded-full border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer p-2">
+                 <div id="upload-avatar-button" class="w-20 h-20 justify-self-center rounded-full border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer p-2">
                     <i data-lucide="plus" class="w-5 h-5 text-secondary"></i>
                     <span class="text-[9px] text-secondary mt-1 text-center">*До 4 мб</span>
                 </div>
+                <input type="file" id="avatar-upload-input" class="hidden" accept="image/*">
             </div>
 
             <div class="flex-shrink-0 grid grid-cols-2 gap-3">
                 <button id="cancel-modal-button" class="element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
-                <button class="gradient-accent text-black py-2.5 rounded-xl font-semibold">СОХРАНИТЬ</button>
+                <button id="save-avatar-button" class="gradient-accent text-black py-2.5 rounded-xl font-semibold">СОХРАНИТЬ</button>
             </div>
         </div>
     </div>
@@ -239,21 +242,98 @@
     <script>
         lucide.createIcons();
 
+        // --- DOM Элементы ---
         const profilePage = document.getElementById('profile-page');
         const editProfilePage = document.getElementById('edit-profile-page');
         const editProfileButton = document.getElementById('edit-profile-button');
         const backToProfileButton = document.getElementById('back-to-profile-button');
         const cancelEditButton = document.getElementById('cancel-edit-button');
+        const saveProfileButton = document.getElementById('save-profile-button');
+        
         const avatarButton = document.getElementById('avatar-button');
         const avatarModal = document.getElementById('avatar-modal');
         const modalPanel = document.getElementById('modal-panel');
         const cancelModalButton = document.getElementById('cancel-modal-button');
+        const saveAvatarButton = document.getElementById('save-avatar-button');
+        const uploadAvatarButton = document.getElementById('upload-avatar-button');
+        const avatarUploadInput = document.getElementById('avatar-upload-input');
+        const modalAvatarPreview = document.getElementById('modal-avatar-preview');
 
+        // Элементы отображения данных
+        const displayFullname = document.getElementById('display-fullname');
+        const displayNickname = document.getElementById('display-nickname');
+        const displayPartner = document.getElementById('display-partner');
+        const displayGender = document.getElementById('display-gender');
+        const displayAge = document.getElementById('display-age');
+        const displayCountry = document.getElementById('display-country');
+
+        // Поля редактирования
+        const editFullname = document.getElementById('edit-fullname');
+        const editNickname = document.getElementById('edit-nickname');
+        const editEmail = document.getElementById('edit-email');
+        const editPartner = document.getElementById('edit-partner');
+        const editGender = document.getElementById('edit-gender');
+        const editAge = document.getElementById('edit-age');
+        const editCountry = document.getElementById('edit-country');
+
+        // --- Локальное хранилище ---
+        const USER_DATA_KEY = 'userProfileData';
+        let tempAvatarUrl = null;
+
+        // Функция для загрузки данных из localStorage
+        function loadUserData() {
+            const data = localStorage.getItem(USER_DATA_KEY);
+            return data ? JSON.parse(data) : {
+                fullname: 'ФИО',
+                nickname: 'kadetov',
+                email: 'Ваша почта',
+                partner: 'никтелеграм',
+                gender: 'Пол',
+                age: 'Возраст',
+                country: 'Россия',
+                avatar: 'https://placehold.co/112x112/222/FFF?text='
+            };
+        }
+
+        // Функция для сохранения данных в localStorage
+        function saveUserData(data) {
+            localStorage.setItem(USER_DATA_KEY, JSON.stringify(data));
+        }
+
+        // Функция для обновления UI
+        function updateUI() {
+            const userData = loadUserData();
+            
+            // Обновление страницы профиля
+            displayFullname.textContent = userData.fullname;
+            displayNickname.textContent = userData.nickname;
+            displayPartner.textContent = userData.partner;
+            displayGender.textContent = userData.gender;
+            displayAge.textContent = userData.age;
+            displayCountry.textContent = userData.country;
+            avatarButton.style.backgroundImage = `url('${userData.avatar}')`;
+            
+            // Обновление страницы редактирования
+            editFullname.value = userData.fullname;
+            editNickname.value = userData.nickname;
+            editEmail.value = userData.email;
+            editPartner.value = userData.partner;
+            editGender.value = userData.gender;
+            editAge.value = userData.age;
+            editCountry.value = userData.country;
+
+            // Обновление аватара в модальном окне
+            modalAvatarPreview.style.backgroundImage = `url('${userData.avatar}')`;
+        }
+
+
+        // --- Логика переключения страниц ---
         function showProfilePage() {
             profilePage.classList.remove('hidden');
             profilePage.classList.add('flex');
             editProfilePage.classList.add('hidden');
             editProfilePage.classList.remove('flex');
+            updateUI(); // Обновляем данные при показе
         }
 
         function showEditProfilePage() {
@@ -261,9 +341,12 @@
             profilePage.classList.remove('flex');
             editProfilePage.classList.remove('hidden');
             editProfilePage.classList.add('flex', 'flex-col');
+            updateUI(); // Обновляем данные при показе
         }
 
+        // --- Логика модального окна ---
         function openModal() {
+            tempAvatarUrl = null; // Сбрасываем временный аватар
             avatarModal.classList.remove('pointer-events-none');
             avatarModal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
             modalPanel.style.transform = 'translateY(0)';
@@ -276,10 +359,12 @@
                 avatarModal.classList.add('pointer-events-none');
             }, 300);
         }
-
+        
+        // --- Обработчики событий ---
         editProfileButton.addEventListener('click', showEditProfilePage);
         backToProfileButton.addEventListener('click', showProfilePage);
         cancelEditButton.addEventListener('click', showProfilePage);
+        
         avatarButton.addEventListener('click', openModal);
         cancelModalButton.addEventListener('click', closeModal);
         avatarModal.addEventListener('click', (event) => {
@@ -287,6 +372,53 @@
                 closeModal();
             }
         });
+
+        // Сохранение профиля
+        saveProfileButton.addEventListener('click', () => {
+            const userData = {
+                fullname: editFullname.value,
+                nickname: editNickname.value,
+                email: editEmail.value,
+                partner: editPartner.value,
+                gender: editGender.value,
+                age: editAge.value,
+                country: editCountry.value,
+                avatar: loadUserData().avatar // Сохраняем текущий аватар
+            };
+            saveUserData(userData);
+            showProfilePage();
+        });
+
+        // Загрузка аватара
+        uploadAvatarButton.addEventListener('click', () => {
+            avatarUploadInput.click();
+        });
+
+        avatarUploadInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    tempAvatarUrl = e.target.result;
+                    modalAvatarPreview.style.backgroundImage = `url('${tempAvatarUrl}')`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Сохранение аватара
+        saveAvatarButton.addEventListener('click', () => {
+            if (tempAvatarUrl) {
+                const userData = loadUserData();
+                userData.avatar = tempAvatarUrl;
+                saveUserData(userData);
+                updateUI();
+            }
+            closeModal();
+        });
+
+        // --- Инициализация при загрузке страницы ---
+        document.addEventListener('DOMContentLoaded', updateUI);
 
     </script>
 
