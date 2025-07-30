@@ -65,6 +65,9 @@
             padding: 0.75rem;
             border-radius: 0.75rem;
         }
+        .input-style.error {
+            border-color: #ef4444; /* red-500 */
+        }
 
         /* Calendar Styles */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
@@ -77,6 +80,15 @@
         /* Country list scrollbar */
         .country-list::-webkit-scrollbar { width: 4px; }
         .country-list::-webkit-scrollbar-thumb { background: #4A4A4A; border-radius: 2px; }
+        
+        /* Custom select for calendar */
+        .calendar-select {
+            background-color: #1E1E1E;
+            border: 1px solid #4A4A4A;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -224,10 +236,13 @@
         <div class="modal-panel p-4">
             <div id="calendar-header" class="flex justify-between items-center mb-4">
                 <button id="prev-month"><i data-lucide="chevron-left"></i></button>
-                <h3 id="month-year" class="font-bold text-lg"></h3>
+                <div class="flex gap-2">
+                    <select id="month-select" class="calendar-select"></select>
+                    <select id="year-select" class="calendar-select"></select>
+                </div>
                 <button id="next-month"><i data-lucide="chevron-right"></i></button>
             </div>
-            <div class="calendar-grid text-sm mb-4">
+            <div class="calendar-grid text-sm mb-4 text-secondary">
                 <div>Вс</div><div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div>
             </div>
             <div id="calendar-days" class="calendar-grid"></div>
@@ -244,7 +259,8 @@
     <!-- PIN Modal -->
     <div id="pin-modal" class="modal-backdrop hidden">
         <div class="modal-panel p-6 space-y-4">
-            <h3 class="text-lg font-bold text-center">Создать PIN-код</h3>
+            <h3 id="pin-title" class="text-lg font-bold text-center">Создать PIN-код</h3>
+            <p id="pin-error" class="text-red-500 text-center text-sm hidden">PIN-коды не совпадают</p>
             <input type="password" id="pin-input" class="input-style text-center tracking-[1em]" placeholder="••••" maxlength="4">
             <input type="password" id="pin-confirm-input" class="input-style text-center tracking-[1em]" placeholder="••••" maxlength="4">
             <div class="flex-shrink-0 grid grid-cols-2 gap-3 pt-4">
@@ -257,14 +273,14 @@
     <div id="card-modal" class="modal-backdrop hidden">
         <div class="modal-panel p-6 space-y-4">
             <h3 class="text-lg font-bold text-center">Данные карты</h3>
-            <input type="text" id="card-number" class="input-style" placeholder="Номер карты">
+            <input type="text" id="card-number" class="input-style" placeholder="Номер карты" maxlength="19">
             <div class="grid grid-cols-2 gap-4">
-                <input type="text" id="card-expiry" class="input-style" placeholder="ММ/ГГ">
-                <input type="text" id="card-cvc" class="input-style" placeholder="CVC">
+                <input type="text" id="card-expiry" class="input-style" placeholder="ММ/ГГ" maxlength="5">
+                <input type="text" id="card-cvc" class="input-style" placeholder="CVC" maxlength="4">
             </div>
              <div class="flex-shrink-0 grid grid-cols-2 gap-3 pt-4">
                 <button class="cancel-modal-button element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
-                <button id="save-card-button" class="w-full gradient-accent text-black p-3 rounded-xl font-semibold">Привязать</button>
+                <button id="save-card-button" class="gradient-accent text-black p-3 rounded-xl font-semibold">Привязать</button>
             </div>
         </div>
     </div>
@@ -302,7 +318,7 @@
         // --- State & Local Storage ---
         const USER_DATA_KEY = 'userProfileData';
         let selectedAvatarInModal = null;
-        let currentDate = new Date();
+        let calendarDate = new Date();
 
         function loadUserData() {
             const data = localStorage.getItem(USER_DATA_KEY);
@@ -312,7 +328,8 @@
                 country: 'Россия', country_flag: '🇷🇺',
                 avatar: 'https://placehold.co/112x112/222/FFF?text=',
                 avatarHistory: ['https://placehold.co/112x112/222/FFF?text='],
-                isProfileVisible: true, pin: '', card: {}
+                isProfileVisible: true, pin: '', 
+                card: { number: '', expiry: '', cvc: '' }
             };
             if (data) {
                 const parsed = JSON.parse(data);
@@ -465,13 +482,26 @@
 
         // Calendar
         function initCalendarLogic() {
-            const monthYearEl = document.getElementById('month-year');
+            const monthSelect = document.getElementById('month-select');
+            const yearSelect = document.getElementById('year-select');
             const calendarDaysEl = document.getElementById('calendar-days');
+            
+            const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+            monthNames.forEach((name, i) => {
+                monthSelect.options[i] = new Option(name, i);
+            });
+
+            const currentYear = new Date().getFullYear();
+            for (let i = 0; i < 100; i++) {
+                yearSelect.options[i] = new Option(currentYear - i, currentYear - i);
+            }
+
             function renderCalendar() {
                 calendarDaysEl.innerHTML = '';
-                const month = currentDate.getMonth();
-                const year = currentDate.getFullYear();
-                monthYearEl.textContent = `${currentDate.toLocaleString('ru', { month: 'long' })} ${year}`;
+                const month = parseInt(monthSelect.value);
+                const year = parseInt(yearSelect.value);
+                calendarDate = new Date(year, month);
+
                 const firstDay = new Date(year, month, 1).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 for (let i = 0; i < firstDay; i++) calendarDaysEl.insertAdjacentHTML('beforeend', `<div></div>`);
@@ -494,9 +524,18 @@
                     calendarDaysEl.appendChild(dayEl);
                 }
             }
-            document.getElementById('open-age-modal').addEventListener('click', () => { renderCalendar(); openModal('age-modal'); });
-            document.getElementById('prev-month').addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); });
-            document.getElementById('next-month').addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); });
+            
+            monthSelect.addEventListener('change', renderCalendar);
+            yearSelect.addEventListener('change', renderCalendar);
+            document.getElementById('open-age-modal').addEventListener('click', () => { 
+                const today = new Date();
+                monthSelect.value = today.getMonth();
+                yearSelect.value = today.getFullYear();
+                renderCalendar(); 
+                openModal('age-modal'); 
+            });
+            document.getElementById('prev-month').addEventListener('click', () => { monthSelect.value = (parseInt(monthSelect.value) + 11) % 12; renderCalendar(); });
+            document.getElementById('next-month').addEventListener('click', () => { monthSelect.value = (parseInt(monthSelect.value) + 1) % 12; renderCalendar(); });
         }
 
         // Country
@@ -532,8 +571,60 @@
         }
 
         // PIN & Card
-        document.getElementById('open-pin-modal').addEventListener('click', () => openModal('pin-modal'));
-        document.getElementById('open-card-modal').addEventListener('click', () => openModal('card-modal'));
+        function initSecurityLogic() {
+            // PIN
+            const pinInput = document.getElementById('pin-input');
+            const pinConfirmInput = document.getElementById('pin-confirm-input');
+            const pinError = document.getElementById('pin-error');
+            document.getElementById('open-pin-modal').addEventListener('click', () => openModal('pin-modal'));
+            document.getElementById('save-pin-button').addEventListener('click', () => {
+                pinError.classList.add('hidden');
+                pinInput.classList.remove('error');
+                pinConfirmInput.classList.remove('error');
+
+                if (pinInput.value.length !== 4) {
+                    pinInput.classList.add('error');
+                    return;
+                }
+                if (pinInput.value !== pinConfirmInput.value) {
+                    pinError.classList.remove('hidden');
+                    pinConfirmInput.classList.add('error');
+                    return;
+                }
+                const data = loadUserData();
+                data.pin = pinInput.value;
+                saveUserData(data);
+                pinInput.value = '';
+                pinConfirmInput.value = '';
+                closeModal('pin-modal');
+            });
+
+            // Card
+            const cardNumber = document.getElementById('card-number');
+            const cardExpiry = document.getElementById('card-expiry');
+            const cardCvc = document.getElementById('card-cvc');
+            document.getElementById('open-card-modal').addEventListener('click', () => openModal('card-modal'));
+            
+            cardNumber.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
+            });
+            cardExpiry.addEventListener('input', (e) => {
+                let input = e.target.value.replace(/\D/g, '');
+                if (input.length > 2) input = input.slice(0, 2) + '/' + input.slice(2, 4);
+                e.target.value = input;
+            });
+
+            document.getElementById('save-card-button').addEventListener('click', () => {
+                const data = loadUserData();
+                data.card = {
+                    number: cardNumber.value,
+                    expiry: cardExpiry.value,
+                    cvc: cardCvc.value,
+                };
+                saveUserData(data);
+                closeModal('card-modal');
+            });
+        }
         
         // --- Global Event Listeners & Init ---
         editProfileButton.addEventListener('click', showEditProfilePage);
@@ -574,6 +665,7 @@
             initAvatarLogic();
             initCalendarLogic();
             initCountryLogic();
+            initSecurityLogic();
         });
     </script>
 </body>
