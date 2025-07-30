@@ -58,6 +58,9 @@
             border: none;
             outline: none;
         }
+        .avatar-glow {
+            box-shadow: 0 0 25px 5px rgba(228, 167, 90, 0.3);
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -79,24 +82,31 @@
 
                 <!-- Profile Info -->
                 <div class="relative flex flex-col items-center text-center mb-4">
-                    <div class="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col items-center space-y-1">
-                          <div class="w-12 h-12 rounded-full dark-element-bg flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2z"></path></svg>
-                          </div>
-                          <span class="text-xs text-secondary">Канал</span>
-                    </div>
-                    <div class="relative mb-4">
-                        <div id="avatar-button" class="w-28 h-28 bg-cover bg-center bg-[#48484A] rounded-full cursor-pointer flex items-center justify-center border-2 border-[#EBEBF5]/30" style="background-image: url('https://placehold.co/112x112/222/FFF?text=')">
+                    <div class="flex justify-center items-center gap-x-2.5 mb-4">
+                        <!-- Channel Button -->
+                        <div class="flex flex-col items-center space-y-1">
+                              <div class="w-12 h-12 rounded-full dark-element-bg flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2z"></path></svg>
+                              </div>
+                              <span class="text-xs text-secondary">Канал</span>
                         </div>
-                        <button class="absolute bottom-0 right-0 element-bg w-7 h-7 rounded-full flex items-center justify-center border-2 border-[#0D0D0D]">
-                            <i data-lucide="plus" class="w-4 h-4 text-white"></i>
-                        </button>
-                    </div>
-                      <div class="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-center space-y-1">
-                          <div class="w-12 h-12 rounded-full dark-element-bg flex items-center justify-center">
-                            <i data-lucide="globe" class="w-6 h-6"></i>
-                          </div>
-                          <span class="text-xs text-secondary">Сайт</span>
+
+                        <!-- Avatar -->
+                        <div class="relative">
+                            <div id="avatar-button" class="w-28 h-28 bg-cover bg-center bg-[#48484A] rounded-full cursor-pointer flex items-center justify-center border-2 border-[#EBEBF5]/30 avatar-glow" style="background-image: url('https://placehold.co/112x112/222/FFF?text=')">
+                            </div>
+                            <button class="absolute bottom-0 right-0 element-bg w-7 h-7 rounded-full flex items-center justify-center border-2 border-[#0D0D0D]">
+                                <i data-lucide="plus" class="w-4 h-4 text-white"></i>
+                            </button>
+                        </div>
+
+                        <!-- Website Button -->
+                        <div class="flex flex-col items-center space-y-1">
+                              <div class="w-12 h-12 rounded-full dark-element-bg flex items-center justify-center">
+                                <i data-lucide="globe" class="w-6 h-6"></i>
+                              </div>
+                              <span class="text-xs text-secondary">Сайт</span>
+                        </div>
                     </div>
                     <p id="display-fullname" class="text-secondary text-sm">ФИО</p>
                     <h1 id="display-nickname" class="text-2xl font-bold">kadetov</h1>
@@ -140,14 +150,13 @@
                         <i data-lucide="chevron-right" class="w-5 h-5 ml-auto text-secondary"></i>
                     </a>
                 </div>
-            </main>
-              <!-- Account Actions -->
-            <div class="px-4 pb-6 mt-auto">
-                <div class="flex justify-between items-center">
-                      <a href="#" class="text-delete font-medium">Удалить аккаунт</a>
-                      <a href="#" class="text-logout font-medium">Выйти</a>
+
+                 <!-- Account Actions -->
+                <div class="text-center mt-8">
+                    <a href="#" class="text-delete font-medium block">Удалить аккаунт</a>
+                    <a href="#" class="text-logout font-medium block mt-3">Выйти</a>
                 </div>
-            </div>
+            </main>
         </div>
         
         <!-- СТРАНИЦА РЕДАКТИРОВАНИЯ ПРОФИЛЯ -->
