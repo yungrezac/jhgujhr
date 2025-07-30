@@ -50,8 +50,8 @@
         }
         #modal-panel {
             transition: transform 0.3s ease-in-out;
-            height: 50vh; /* Устанавливаем высоту в 50% от высоты экрана */
-            overflow-y: auto; /* Добавляем прокрутку, если контент не помещается */
+            height: 60vh; /* Увеличим высоту для большего контента */
+            overflow-y: hidden; /* Убираем прокрутку с основной панели */
         }
         input.element-bg {
             background-color: #1E1E1E;
@@ -60,6 +60,12 @@
         }
         .avatar-glow {
             box-shadow: 0 0 25px 5px rgba(228, 167, 90, 0.3);
+        }
+        .modal-glow {
+            box-shadow: 0 -5px 25px 5px rgba(228, 167, 90, 0.2);
+        }
+        .avatar-selected {
+            border: 2px solid #D6A96A !important;
         }
     </style>
 </head>
@@ -222,25 +228,23 @@
 
     <!-- Модальное окно смены аватара -->
     <div id="avatar-modal" class="fixed inset-0 bg-black bg-opacity-0 pointer-events-none flex justify-center items-end z-50">
-        <div id="modal-panel" class="bg-[#1C1C1E] w-full rounded-t-2xl p-4 text-center transform translate-y-full flex flex-col">
+        <div id="modal-panel" class="bg-[#1C1C1E] w-full rounded-t-2xl p-4 text-center transform translate-y-full flex flex-col modal-glow">
+            <!-- Header (not scrollable) -->
             <div class="flex-shrink-0">
                 <h2 class="text-lg font-bold mb-1">СМЕНА АВАТАРА</h2>
                 <p class="text-secondary text-sm mb-4">Выберите аватар, отражающий ваш внутренний мир</p>
             </div>
             
-            <div class="flex-grow grid grid-cols-2 gap-3 mb-4 content-center">
-                <div id="modal-avatar-preview" class="w-20 h-20 justify-self-center rounded-full border-2 border-[#D6A96A] flex items-center justify-center bg-cover bg-center" style="background-image: url('https://placehold.co/80x80/222/FFF?text=User')">
+            <!-- Scrollable Grid -->
+            <div class="flex-grow overflow-y-auto py-4">
+                <div id="avatar-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 content-start">
+                    <!-- Avatars will be dynamically inserted here -->
                 </div>
-                <div class="w-20 h-20 justify-self-center rounded-full bg-gray-800 opacity-50 flex items-center justify-center bg-cover bg-center" style="background-image: url('https://placehold.co/80x80/111/555?text=User')">
-                </div>
-                 <div id="upload-avatar-button" class="w-20 h-20 justify-self-center rounded-full border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer p-2">
-                    <i data-lucide="plus" class="w-5 h-5 text-secondary"></i>
-                    <span class="text-[9px] text-secondary mt-1 text-center">*До 4 мб</span>
-                </div>
-                <input type="file" id="avatar-upload-input" class="hidden" accept="image/*">
             </div>
+            <input type="file" id="avatar-upload-input" class="hidden" accept="image/*">
 
-            <div class="flex-shrink-0 grid grid-cols-2 gap-3">
+            <!-- Sticky Footer Buttons -->
+            <div class="flex-shrink-0 grid grid-cols-2 gap-3 pt-4 border-t border-gray-700">
                 <button id="cancel-modal-button" class="element-bg text-white py-2.5 rounded-xl font-semibold">ОТМЕНИТЬ</button>
                 <button id="save-avatar-button" class="gradient-accent text-black py-2.5 rounded-xl font-semibold">СОХРАНИТЬ</button>
             </div>
@@ -264,9 +268,8 @@
         const modalPanel = document.getElementById('modal-panel');
         const cancelModalButton = document.getElementById('cancel-modal-button');
         const saveAvatarButton = document.getElementById('save-avatar-button');
-        const uploadAvatarButton = document.getElementById('upload-avatar-button');
         const avatarUploadInput = document.getElementById('avatar-upload-input');
-        const modalAvatarPreview = document.getElementById('modal-avatar-preview');
+        const avatarGrid = document.getElementById('avatar-grid');
 
         // Элементы отображения данных
         const displayFullname = document.getElementById('display-fullname');
@@ -285,14 +288,14 @@
         const editAge = document.getElementById('edit-age');
         const editCountry = document.getElementById('edit-country');
 
-        // --- Локальное хранилище ---
+        // --- Локальное хранилище и состояние ---
         const USER_DATA_KEY = 'userProfileData';
-        let tempAvatarUrl = null;
+        let selectedAvatarInModal = null;
 
         // Функция для загрузки данных из localStorage
         function loadUserData() {
             const data = localStorage.getItem(USER_DATA_KEY);
-            return data ? JSON.parse(data) : {
+            const defaultData = {
                 fullname: 'ФИО',
                 nickname: 'kadetov',
                 email: 'Ваша почта',
@@ -300,8 +303,17 @@
                 gender: 'Пол',
                 age: 'Возраст',
                 country: 'Россия',
-                avatar: 'https://placehold.co/112x112/222/FFF?text='
+                avatar: 'https://placehold.co/112x112/222/FFF?text=',
+                avatarHistory: ['https://placehold.co/112x112/222/FFF?text=']
             };
+            if (data) {
+                const parsedData = JSON.parse(data);
+                if (!parsedData.avatarHistory || !Array.isArray(parsedData.avatarHistory)) {
+                    parsedData.avatarHistory = [parsedData.avatar];
+                }
+                return parsedData;
+            }
+            return defaultData;
         }
 
         // Функция для сохранения данных в localStorage
@@ -312,8 +324,6 @@
         // Функция для обновления UI
         function updateUI() {
             const userData = loadUserData();
-            
-            // Обновление страницы профиля
             displayFullname.textContent = userData.fullname;
             displayNickname.textContent = userData.nickname;
             displayPartner.textContent = userData.partner;
@@ -322,7 +332,6 @@
             displayCountry.textContent = userData.country;
             avatarButton.style.backgroundImage = `url('${userData.avatar}')`;
             
-            // Обновление страницы редактирования
             editFullname.value = userData.fullname;
             editNickname.value = userData.nickname;
             editEmail.value = userData.email;
@@ -330,11 +339,40 @@
             editGender.value = userData.gender;
             editAge.value = userData.age;
             editCountry.value = userData.country;
-
-            // Обновление аватара в модальном окне
-            modalAvatarPreview.style.backgroundImage = `url('${userData.avatar}')`;
         }
 
+        // Рендер сетки аватаров в модальном окне
+        function renderAvatarGrid() {
+            const userData = loadUserData();
+            avatarGrid.innerHTML = ''; // Очищаем сетку
+
+            // Кнопка добавления нового аватара
+            const uploadButton = document.createElement('div');
+            uploadButton.className = 'aspect-square rounded-full border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer p-2';
+            uploadButton.innerHTML = `<i data-lucide="plus" class="w-8 h-8 text-secondary"></i><span class="text-[10px] text-secondary mt-1 text-center">*До 4 мб</span>`;
+            uploadButton.addEventListener('click', () => avatarUploadInput.click());
+            avatarGrid.appendChild(uploadButton);
+            lucide.createIcons({
+                nodes: [uploadButton.querySelector('i')]
+            });
+
+            // Отображение истории аватаров
+            userData.avatarHistory.forEach(avatarUrl => {
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'aspect-square rounded-full bg-cover bg-center cursor-pointer border-2 border-transparent';
+                avatarDiv.style.backgroundImage = `url('${avatarUrl}')`;
+                
+                if (avatarUrl === selectedAvatarInModal) {
+                    avatarDiv.classList.add('avatar-selected');
+                }
+
+                avatarDiv.addEventListener('click', () => {
+                    selectedAvatarInModal = avatarUrl;
+                    renderAvatarGrid(); // Перерисовываем для обновления выделения
+                });
+                avatarGrid.appendChild(avatarDiv);
+            });
+        }
 
         // --- Логика переключения страниц ---
         function showProfilePage() {
@@ -342,7 +380,7 @@
             profilePage.classList.add('flex');
             editProfilePage.classList.add('hidden');
             editProfilePage.classList.remove('flex');
-            updateUI(); // Обновляем данные при показе
+            updateUI();
         }
 
         function showEditProfilePage() {
@@ -350,12 +388,14 @@
             profilePage.classList.remove('flex');
             editProfilePage.classList.remove('hidden');
             editProfilePage.classList.add('flex', 'flex-col');
-            updateUI(); // Обновляем данные при показе
+            updateUI();
         }
 
         // --- Логика модального окна ---
         function openModal() {
-            tempAvatarUrl = null; // Сбрасываем временный аватар
+            const userData = loadUserData();
+            selectedAvatarInModal = userData.avatar; // Устанавливаем текущий аватар как выделенный
+            renderAvatarGrid();
             avatarModal.classList.remove('pointer-events-none');
             avatarModal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
             modalPanel.style.transform = 'translateY(0)';
@@ -384,7 +424,9 @@
 
         // Сохранение профиля
         saveProfileButton.addEventListener('click', () => {
-            const userData = {
+            const userData = loadUserData();
+            const updatedData = {
+                ...userData,
                 fullname: editFullname.value,
                 nickname: editNickname.value,
                 email: editEmail.value,
@@ -392,34 +434,38 @@
                 gender: editGender.value,
                 age: editAge.value,
                 country: editCountry.value,
-                avatar: loadUserData().avatar // Сохраняем текущий аватар
             };
-            saveUserData(userData);
+            saveUserData(updatedData);
             showProfilePage();
         });
 
-        // Загрузка аватара
-        uploadAvatarButton.addEventListener('click', () => {
-            avatarUploadInput.click();
-        });
-
+        // Загрузка нового аватара
         avatarUploadInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    tempAvatarUrl = e.target.result;
-                    modalAvatarPreview.style.backgroundImage = `url('${tempAvatarUrl}')`;
+                    const newAvatarUrl = e.target.result;
+                    const userData = loadUserData();
+                    
+                    // Добавляем новый аватар в начало истории, если его там еще нет
+                    if (!userData.avatarHistory.includes(newAvatarUrl)) {
+                         userData.avatarHistory.unshift(newAvatarUrl);
+                    }
+                   
+                    selectedAvatarInModal = newAvatarUrl; // Сразу выделяем новый аватар
+                    saveUserData(userData);
+                    renderAvatarGrid(); // Обновляем сетку
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Сохранение аватара
+        // Сохранение выбранного аватара
         saveAvatarButton.addEventListener('click', () => {
-            if (tempAvatarUrl) {
+            if (selectedAvatarInModal) {
                 const userData = loadUserData();
-                userData.avatar = tempAvatarUrl;
+                userData.avatar = selectedAvatarInModal;
                 saveUserData(userData);
                 updateUI();
             }
